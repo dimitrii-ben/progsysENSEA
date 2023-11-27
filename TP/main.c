@@ -31,6 +31,7 @@ int initENSEASH() {
 
 int main() {
     char input[INPUT_SIZE];
+    int status;
     if (initENSEASH() == -1) {
         return 1;
     }
@@ -51,15 +52,13 @@ int main() {
             execlp(input, input, NULL);
             // If execlp fails
             perror("execlp");
+            exit(EXIT_FAILURE);
 
         } else {
             int status;
+            //waiting for the child
             waitpid(pid, &status, 0);
-            if (WIFEXITED(status)) {
-                int exit_status = WEXITSTATUS(status);
-            } else {
-                // Handle error if the child process didn't exit normally
-            }
+            
         }
         write(STDOUT_FILENO, SHELL_NAME, strlen(SHELL_NAME));
         for(int i = 0;i<INPUT_SIZE;i++){
