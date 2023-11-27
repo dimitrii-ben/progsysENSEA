@@ -6,15 +6,18 @@
 #include <stdlib.h>
 
 #define WELCOME_MSG "Welcome to ENSEA Tiny Shell.\nPour quitter, tapez 'exit'.\n"
-#define SHELL_NAME "enseash %"
-#define EXIT1 "exit\n"
-#define EXIT2 "EOF\n"
+#define SHELL_NAME "enseash %%"
+#define SHELL_NAME2 "enseash [exit:%d] %%"
+#define EXIT "exit\n"
 #define INPUT_SIZE 128
 
 int displayNewLine(int exit_status){
-
-    return write(STDOUT_FILENO, SHELL_NAME, strlen(SHELL_NAME));
-    
+    return write(STDOUT_FILENO, SHELL_NAME, strlen(SHELL_NAME));  
+}
+void resetBuffer(char*buffer){
+    for(int i = 0;i<INPUT_SIZE;i++){
+            buffer[i]=0;
+        }
 }
 int initENSEASH() {
     /*
@@ -36,7 +39,7 @@ int initENSEASH() {
 }
 
 int main() {
-    char input[INPUT_SIZE];
+    char input[INPUT_SIZE],new_line_buffer[INPUT_SIZE];
     int status,bytes_read;
     
     if (initENSEASH() == -1) {
@@ -45,8 +48,9 @@ int main() {
     
     // Current shell while loop
     while (1) {
+        resetBuffer(input);
         bytes_read = read(STDIN_FILENO,input,sizeof(input));
-        if (!strcmp(input,EXIT1) || bytes_read ==0){
+        if (!strcmp(input,EXIT) || bytes_read ==0){
             exit(EXIT_SUCCESS);
         }
         pid_t pid = fork();
@@ -58,7 +62,7 @@ int main() {
             input[strlen(input)-1] = '\0';
             execlp(input, input, NULL);
             // If execlp fails
-            perror("enseash %");
+            perror("enseash %%");
             exit(127);
 
         } else {
@@ -67,14 +71,12 @@ int main() {
             waitpid(pid, &status, 0);
             if(WIFEXITED(status)){
                 int exit_code = WEXITSTATUS(status);
-
+                sprintf(new_line_buffer,SHELL_NAME2,exit_code);
             }
             
         }
-        write(STDOUT_FILENO, SHELL_NAME, strlen(SHELL_NAME));
-        for(int i = 0;i<INPUT_SIZE;i++){
-            input[i]=0;
-        }
+        write(STDOUT_FILENO, new_line_buffer, strlen(new_line_buffer));
+        
     }
     return 0;
 }
