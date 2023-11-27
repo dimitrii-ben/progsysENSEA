@@ -7,5 +7,6 @@
 
 void create_enseash( void){
 	 write(STDOUT_FILENO, WELCOME_MESSAGE, strlen(WELCOME_MESSAGE));
+	 //write(STDOUT_FILENO, PROMPT_MESSAGE, strlen(PROMPT_MESSAGE));
  }
  
