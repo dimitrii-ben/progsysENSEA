@@ -7,9 +7,15 @@
 
 #define WELCOME_MSG "Welcome to ENSEA Tiny Shell.\nPour quitter, tapez 'exit'.\n"
 #define SHELL_NAME "enseash %"
-#define EXIT "exit\n"
+#define EXIT1 "exit\n"
+#define EXIT2 "EOF\n"
 #define INPUT_SIZE 128
 
+int displayNewLine(int exit_status){
+
+    return write(STDOUT_FILENO, SHELL_NAME, strlen(SHELL_NAME));
+    
+}
 int initENSEASH() {
     /*
     Init the display of the tiny shell
@@ -31,15 +37,16 @@ int initENSEASH() {
 
 int main() {
     char input[INPUT_SIZE];
-    int status;
+    int status,bytes_read;
+    
     if (initENSEASH() == -1) {
-        return 1;
+        exit(1);
     }
     
     // Current shell while loop
     while (1) {
-        read(STDIN_FILENO,input,sizeof(input));
-        if (!strcmp(input,EXIT)){
+        bytes_read = read(STDIN_FILENO,input,sizeof(input));
+        if (!strcmp(input,EXIT1) || bytes_read ==0){
             exit(EXIT_SUCCESS);
         }
         pid_t pid = fork();
@@ -51,13 +58,17 @@ int main() {
             input[strlen(input)-1] = '\0';
             execlp(input, input, NULL);
             // If execlp fails
-            perror("execlp");
-            exit(EXIT_FAILURE);
+            perror("enseash %");
+            exit(127);
 
         } else {
             int status;
             //waiting for the child
             waitpid(pid, &status, 0);
+            if(WIFEXITED(status)){
+                int exit_code = WEXITSTATUS(status);
+
+            }
             
         }
         write(STDOUT_FILENO, SHELL_NAME, strlen(SHELL_NAME));
