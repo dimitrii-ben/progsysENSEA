@@ -38,7 +38,9 @@ int main() {
     // Current shell while loop
     while (1) {
         read(STDIN_FILENO,input,sizeof(input));
-        
+        if (!strcmp(input,EXIT)){
+            exit(EXIT_SUCCESS);
+        }
         pid_t pid = fork();
         
         if (pid == -1) {
