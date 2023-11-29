@@ -12,7 +12,7 @@
 #define EXIT "exit\n"
 #define INPUT_SIZE 128
 #define CLOCK_MONOTONIC 1
-#define PATH "/usr/bin/"
+#define ROOT_PATH "/usr/bin/"
 int displayNewLine(int exit_status){
     return write(STDOUT_FILENO, SHELL_NAME, strlen(SHELL_NAME));  
 }
@@ -69,8 +69,38 @@ char** getArguments(char* raw_command,char* delimiter){
     return arr;
 
 }
+int getPath(char* command,char* path){
+    pid_t pid;
+    int fd[2];
+    char buf[4096];
+    if (pipe(fd)==-1){
+        perror("enseash %%");
+        exit(EXIT_FAILURE);
+    }
+    if ((pid= fork()) == -1){
+        perror("enseash %%");
+        exit(EXIT_FAILURE);
+    }
+    if (pid ==0){//Child process
+        
+        dup2 (fd[1], STDOUT_FILENO);
+        close(fd[0]);
+        close(fd[1]);
+        execlp("which","which",command,NULL);
+        // If execlp fails
+        perror("enseash %%");
+        exit(127);
+    }else{
+        close(fd[1]);
+        int nbytes = read(fd[0], buf, sizeof(buf));
+        buf[strlen(buf)-1]='\0';
+        strcpy(path,buf);
+        wait(NULL);   
+    }
+    return 0;  
+}
 int main() {
-    char input[INPUT_SIZE],new_line_buffer[INPUT_SIZE],path[INPUT_SIZE];
+    char input[INPUT_SIZE],new_line_buffer[INPUT_SIZE],path[INPUT_SIZE],root_path[INPUT_SIZE];
     char**arguments;
     int status,bytes_read;
     struct timespec time_result_before,time_result_after;
@@ -80,9 +110,7 @@ int main() {
     
     // Current shell while loop
     while (1) {
-        strcpy(path,PATH);
         resetBuffer(input);
-
         bytes_read = read(STDIN_FILENO,input,sizeof(input));
         clock_gettime(CLOCK_MONOTONIC,&time_result_before);
         if (!strcmp(input,EXIT) || bytes_read ==0){
@@ -95,9 +123,9 @@ int main() {
         }
         if (pid == 0) {
             arguments = getArguments(input," ");
-            char* argu[] = {"ls","-l",NULL};
-            strcat(path,arguments[0]);
+            getPath(arguments[0],path);
             execv(path,arguments);
+            
             // If execlp fails
             perror("enseash %%");
             exit(127);
