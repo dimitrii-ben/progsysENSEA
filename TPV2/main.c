@@ -43,7 +43,7 @@ int main (){
 			int status;
 			waitpid(pid,&status,0);	//waiting for the child process to be terminated
 					clock_gettime(CLOCK_REALTIME,&time2);
-			ex_time= (double) (time2.tv_nsec-time1.tv_nsec)/1000000; //(((double) time2.tv_nsec-time1.tv_nsec)*(1/1000));
+			ex_time= (double) (time2.tv_nsec-time1.tv_nsec)/1000000; //computation of the execution time
 			if (WIFEXITED(status)){
 				code=WEXITSTATUS(status);
 				sprintf(exit_code, "[exit: %d| %f ms]",code,ex_time);
