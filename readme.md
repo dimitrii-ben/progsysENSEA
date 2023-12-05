@@ -4,7 +4,7 @@
   * STDOUT_FILENO: standard output
   * STDIN_FILENO: standard input
   * The use of write(fd,buffer,nb_of_bytes);
-  * 
+
 **Question 2:**
   * read(fd,buffer,nb_of_bytes_read);
   * execlp(command_file,command_file,NULL) for simple command and not complex. System call that execute the file. Terminate the current process so it was mandatory to use a fork() to create a child process
@@ -28,4 +28,6 @@
   * To get the path of the file, we used the **which file** command. To get the return value of this system call we used a pipe **pipe(int[2] fd)**
   * Next time we'll look more deeply in the documentation. But we learned alot by using **execv** !
 
-**Question 7**
+**Question 7** Redirection ">" "<"
+ * **">"** :
+ * **"<"** :
